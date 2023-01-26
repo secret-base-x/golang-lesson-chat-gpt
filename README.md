@@ -123,7 +123,7 @@ func (m *Model) BeforeUpdate(db orm.DB) error {
 
 - **Automatically generating unique IDs**: You can use the before_create hook to automatically generate a unique ID for each new model instance before it is saved to the database.
 
-```
+```go
 func (m *Model) BeforeCreate(db orm.DB) error {
     m.ID = uuid.New().String()
     return nil
@@ -132,7 +132,7 @@ func (m *Model) BeforeCreate(db orm.DB) error {
 
 - **Ensuring referential integrity**: You can use the before_delete hook to ensure referential integrity by checking for and deleting any related records before deleting the current record.
 
-```
+```go
 func (m *Model) BeforeDelete(db orm.DB) error {
 // Check for and delete any related records
 if err := db.Model(m).Association("Children").Delete(); err != nil {
