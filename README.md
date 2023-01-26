@@ -1,5 +1,7 @@
 # Golang Lessons from CHAT-GPT
 
+## Create a new type that has the same fields and method
+
 In Go, you can create a new type that has the same fields and methods as another type by using the type keyword. This is known as type alias.
 
 Here is an example of creating a new type that has the same fields and methods as an existing type:
