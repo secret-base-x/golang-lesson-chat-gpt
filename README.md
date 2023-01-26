@@ -78,7 +78,7 @@ go-pg is a powerful ORM library for Go that provides several interesting techniq
 
 These features make go-pg a powerful and flexible ORM library for working with PostgreSQL databases in Go.
 
-## Model Hooks Patter
+## Model Hooks Pattern
 
 go-pg provides several model hooks that you can use to perform custom logic before or after certain events, such as creating, updating, or deleting a model. Here are a few examples of how you can use these hooks to implement interesting patterns:
 
