@@ -82,24 +82,94 @@ These features make go-pg a powerful and flexible ORM library for working with P
 
 go-pg provides several model hooks that you can use to perform custom logic before or after certain events, such as creating, updating, or deleting a model. Here are a few examples of how you can use these hooks to implement interesting patterns:
 
-- Auditing: You can use the before_create and before_update hooks to automatically record information about when a model was created or updated, and by whom.
+- Automatically setting timestamps: You can use the before_create and before_update hooks to automatically set the created_at and updated_at fields of a model.
 
 ```go
-type User struct {
-    ID        int
-    CreatedAt time.Time
-    UpdatedAt time.Time
-    CreatorID int
-    UpdaterID int
-}
-
-func (u *User) BeforeCreate(db orm.DB) error {
-    u.CreatedAt = time.Now()
+func (m *Model) BeforeCreate(db orm.DB) error {
+    m.CreatedAt = time.Now()
     return nil
 }
 
-func (u *User) BeforeUpdate(db orm.DB) error {
-    u.UpdatedAt = time.Now()
+func (m *Model) BeforeUpdate(db orm.DB) error {
+    m.UpdatedAt = time.Now()
     return nil
+}
+
+```
+
+- Automatically encrypting sensitive fields: You can use the before_create and before_update hooks to automatically encrypt sensitive fields such as passwords or credit card numbers before storing them in the database.
+
+```go
+func (m *Model) BeforeCreate(db orm.DB) error {
+    encryptedPassword, err := encrypt(m.Password)
+    if err != nil {
+        return err
+    }
+    m.Password = encryptedPassword
+    return nil
+}
+
+func (m *Model) BeforeUpdate(db orm.DB) error {
+    if m.HasChanged("password") {
+        encryptedPassword, err := encrypt(m.Password)
+        if err != nil {
+            return err
+        }
+        m.Password = encryptedPassword
+    }
+    return nil
+}
+```
+
+- **Automatically generating unique IDs**: You can use the before_create hook to automatically generate a unique ID for each new model instance before it is saved to the database.
+
+```
+func (m *Model) BeforeCreate(db orm.DB) error {
+    m.ID = uuid.New().String()
+    return nil
+}
+```
+
+- **Ensuring referential integrity**: You can use the before_delete hook to ensure referential integrity by checking for and deleting any related records before deleting the current record.
+
+```
+func (m *Model) BeforeDelete(db orm.DB) error {
+// Check for and delete any related records
+if err := db.Model(m).Association("Children").Delete(); err != nil {
+return err
+}
+return nil
+}
+```
+
+- **Auditing**: You can use the `after_create`, `after_update`, and `after_delete` hooks to keep track of changes made to the model, such as creating a new record in an audit log with the user who made the change and the time it was made.
+
+```
+```go
+func (m *Model) AfterCreate(db orm.DB) error {
+    log := &AuditLog{
+        Model:  m.TableName(),
+        Action: "create",
+        UserID: user.Current().ID,
+    }
+    return db.Insert(log)
+}
+
+func (m *Model) AfterUpdate(db orm.DB) error {
+    log := &AuditLog{
+        Model:  m.TableName(),
+        Action: "update",
+        UserID: user.Current().ID,
+    }
+    return db.Insert(log)
+}
+
+func (m *Model) AfterDelete(db orm.DB) error {
+    log := &AuditLog{
+        Model:  m.TableName(),
+        Action: "delete",
+        UserID: user.Current().ID,
+    }
+    return db.Insert(log)
 }
 ```
