@@ -144,7 +144,6 @@ return nil
 
 - **Auditing**: You can use the `after_create`, `after_update`, and `after_delete` hooks to keep track of changes made to the model, such as creating a new record in an audit log with the user who made the change and the time it was made.
 
-```
 ```go
 func (m *Model) AfterCreate(db orm.DB) error {
     log := &AuditLog{
